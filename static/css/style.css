@@ -1,0 +1,94 @@
+:root {
+  color-scheme: dark;
+  --bg: #07111f;
+  --panel: #0e1728;
+  --panel-2: #111d33;
+  --text: #f5f7fb;
+  --muted: #8f9bb3;
+  --accent: #65b7ff;
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background: linear-gradient(135deg, var(--bg), #0b1424);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+}
+
+.sidebar {
+  background: rgba(7, 13, 24, 0.96);
+  border-color: var(--border) !important;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  font-weight: 700;
+  color: white;
+}
+
+.nav-link {
+  color: var(--muted);
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  background: rgba(101, 183, 255, 0.16);
+  color: white;
+}
+
+.panel-card {
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+}
+
+.badge-pill,
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(101, 183, 255, 0.16);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.company-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #dfe8ff;
+  font-size: 0.8rem;
+}
+
+.text-muted {
+  color: var(--muted) !important;
+}
+
+@media (max-width: 992px) {
+  .sidebar {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .panel-card {
+    padding: 1.25rem !important;
+  }
+
+  h1 {
+    font-size: 1.35rem;
+  }
+}
