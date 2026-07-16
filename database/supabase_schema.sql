@@ -1,11 +1,3 @@
-# frontier-intelligence
-AI Data Center Intelligence Platform
-
-## Supabase SQL
-
-Supabase の SQL Editor で次の SQL を実行してください。
-
-```sql
 -- Supabase schema for Frontier Radar
 
 create extension if not exists "uuid-ossp";
@@ -44,23 +36,3 @@ create table if not exists public.watchlist (
 alter table public.news enable row level security;
 alter table public.signals enable row level security;
 alter table public.watchlist enable row level security;
-```
-
-## Render デプロイ手順
-
-1. Render で New > Web Service を選択します。
-2. GitHub リポジトリを接続します。
-3. 環境変数として次を設定します。
-   - `NEWS_API_KEY`
-   - `SUPABASE_URL`
-   - `SUPABASE_KEY`
-4. Build Command: `pip install -r requirements.txt`
-5. Start Command: `gunicorn app:app`
-6. デプロイ後に `https://<your-app>.onrender.com/` で確認します。
-
-## 動作確認
-
-```bash
-python3 -m unittest -q
-curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5000/
-```
