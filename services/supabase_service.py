@@ -23,3 +23,30 @@ class SupabaseService:
             return []
         response = self.client.table(table).insert(records).execute()
         return response.data or []
+
+    def fetch_latest_news(self, limit: int = 10) -> List[Dict[str, Any]]:
+        if not self.client:
+            return []
+
+        try:
+            response = (
+                self.client.table("news")
+                .select("title, description, url, topic, source, published_at, created_at")
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+        except Exception:
+            return []
+
+        return [
+            {
+                "title": item.get("title", ""),
+                "description": item.get("description", ""),
+                "source": item.get("source", ""),
+                "published_at": item.get("published_at", ""),
+                "topic": item.get("topic", ""),
+                "url": item.get("url", ""),
+            }
+            for item in (response.data or [])
+        ]

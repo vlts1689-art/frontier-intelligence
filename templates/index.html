@@ -38,6 +38,41 @@
   </div>
 </div>
 
+<div class="panel-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
+    <div>
+      <p class="text-muted small mb-1">ニュース速報</p>
+      <h2 class="h5 mb-0">最新ニュース</h2>
+    </div>
+    <span class="pill">{{ dashboard.latest_news|length }}件</span>
+  </div>
+
+  {% if dashboard.latest_news %}
+  <div class="row g-3">
+    {% for article in dashboard.latest_news %}
+    <div class="col-12 col-xl-6">
+      <div class="border rounded-4 p-3 h-100">
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+          <h3 class="h6 mb-0">{{ article.title }}</h3>
+          {% if article.topic %}
+          <span class="company-chip">{{ article.topic }}</span>
+          {% endif %}
+        </div>
+        <p class="text-muted small mb-2">{{ article.description or '説明は登録されていません。' }}</p>
+        <div class="small text-muted mb-3">
+          <div><strong>出典:</strong> {{ article.source or '不明' }}</div>
+          <div><strong>掲載:</strong> {{ article.published_at }}</div>
+        </div>
+        <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm">原文を開く</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="border rounded-4 p-4 text-muted">{{ dashboard.latest_news_message }}</div>
+  {% endif %}
+</div>
+
 <div class="row g-4">
   {% for card in dashboard.cards %}
   <div class="col-12 col-xl-6">

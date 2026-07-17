@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List
 
 from services.news_service import NewsService
@@ -59,7 +59,33 @@ def _build_cards_from_news(news_by_topic: Dict[str, List[Dict[str, Any]]]) -> Li
     return cards
 
 
+def _format_published_at(value: Any) -> str:
+    if not value:
+        return "未指定"
+    if isinstance(value, datetime):
+        return value.strftime("%Y-%m-%d %H:%M")
+
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if parsed.tzinfo is not None:
+            parsed = parsed.astimezone()
+        return parsed.strftime("%Y-%m-%d %H:%M")
+    except ValueError:
+        return str(value)
+
+
 def get_dashboard_data():
+    cards = DEFAULT_CARDS
+    overview = {
+        "title": "今日見るべき変化",
+        "focus_count": len(DEFAULT_CARDS),
+        "theme_count": len(DEFAULT_CARDS),
+        "impact_count": sum(len(card["companies"]) for card in DEFAULT_CARDS),
+        "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
+    }
+    latest_news: List[Dict[str, Any]] = []
+    latest_news_message = "最新ニュースはまだ取得できていません。Supabaseのnewsテーブルにデータがないか、接続に失敗しています。"
+
     try:
         news_service = NewsService()
         news_by_topic = news_service.collect_topic_news([card["title"] for card in DEFAULT_CARDS])
@@ -73,29 +99,42 @@ def get_dashboard_data():
                 "why_important": card["why_important"],
                 "companies": card["companies"],
                 "stock_summary": card["stock_summary"],
-                "updated_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
             }
             for card in cards
         ]
         supabase_service.save_records("dashboard_cards", payload)
-        return {
-            "overview": {
-                "title": "今日見るべき変化",
-                "focus_count": len(cards),
-                "theme_count": len(cards),
-                "impact_count": sum(len(card["companies"]) for card in cards),
-                "updated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M"),
-            },
-            "cards": cards,
-        }
     except Exception:
-        return {
-            "overview": {
-                "title": "今日見るべき変化",
-                "focus_count": len(DEFAULT_CARDS),
-                "theme_count": len(DEFAULT_CARDS),
-                "impact_count": sum(len(card["companies"]) for card in DEFAULT_CARDS),
-                "updated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M"),
-            },
-            "cards": DEFAULT_CARDS,
-        }
+        cards = DEFAULT_CARDS
+
+    try:
+        supabase_service = SupabaseService()
+        latest_news = [
+            {
+                **article,
+                "published_at": _format_published_at(article.get("published_at")),
+            }
+            for article in supabase_service.fetch_latest_news(limit=10)
+        ]
+        if latest_news:
+            latest_news_message = ""
+        else:
+            latest_news_message = "最新ニュースはまだ取得できていません。Supabaseのnewsテーブルにデータがないか、接続に失敗しています。"
+    except Exception:
+        latest_news = []
+        latest_news_message = "最新ニュースはまだ取得できていません。Supabaseのnewsテーブルにデータがないか、接続に失敗しています。"
+
+    overview = {
+        "title": "今日見るべき変化",
+        "focus_count": len(cards),
+        "theme_count": len(cards),
+        "impact_count": sum(len(card["companies"]) for card in cards),
+        "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
+    }
+
+    return {
+        "overview": overview,
+        "cards": cards,
+        "latest_news": latest_news,
+        "latest_news_message": latest_news_message,
+    }

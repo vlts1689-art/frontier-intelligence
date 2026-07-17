@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from app import app
 from services.dashboard_service import get_dashboard_data
@@ -10,19 +11,55 @@ class FrontierRadarAppTests(unittest.TestCase):
         self.client.testing = True
 
     def test_home_page_renders_dashboard(self):
-        response = self.client.get('/')
+        with patch('services.dashboard_service.SupabaseService') as mock_service:
+            mock_service.return_value.fetch_latest_news.return_value = [
+                {
+                    'title': '最新ニュースの見出し',
+                    'description': '実ニュースの説明',
+                    'source': 'Reuters',
+                    'published_at': '2026-07-17T00:00:00Z',
+                    'topic': '液冷',
+                    'url': 'https://example.com/news/1',
+                }
+            ]
+            response = self.client.get('/')
+
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Frontier Radar', response.data)
-        self.assertIn('今日の変化'.encode('utf-8'), response.data)
-        self.assertIn('液冷'.encode('utf-8'), response.data)
-        self.assertIn('詳細を見る'.encode('utf-8'), response.data)
+        self.assertIn('今日見るべき変化'.encode('utf-8'), response.data)
+        self.assertIn('最新ニュース'.encode('utf-8'), response.data)
+        self.assertIn('最新ニュースの見出し', response.get_data(as_text=True))
+        self.assertIn('液冷', response.get_data(as_text=True))
+        self.assertIn('詳細を見る', response.get_data(as_text=True))
 
     def test_dashboard_data_includes_news_and_stock_summary(self):
-        dashboard = get_dashboard_data()
+        with patch('services.dashboard_service.SupabaseService') as mock_service:
+            mock_service.return_value.fetch_latest_news.return_value = [
+                {
+                    'title': '実ニュース',
+                    'description': '実ニュース説明',
+                    'source': 'Reuters',
+                    'published_at': '2026-07-17T00:00:00Z',
+                    'topic': '液冷',
+                    'url': 'https://example.com/news/2',
+                }
+            ]
+            dashboard = get_dashboard_data()
+
         self.assertIn('cards', dashboard)
+        self.assertIn('latest_news', dashboard)
         self.assertTrue(len(dashboard['cards']) >= 1)
         self.assertIn('why_important', dashboard['cards'][0])
         self.assertIn('companies', dashboard['cards'][0])
+        self.assertEqual(dashboard['latest_news'][0]['title'], '実ニュース')
+
+    def test_dashboard_data_reports_fallback_message_when_no_news(self):
+        with patch('services.dashboard_service.SupabaseService') as mock_service:
+            mock_service.return_value.fetch_latest_news.return_value = []
+            dashboard = get_dashboard_data()
+
+        self.assertIn('latest_news_message', dashboard)
+        self.assertIn('最新ニュース', dashboard['latest_news_message'])
 
 
 if __name__ == '__main__':
