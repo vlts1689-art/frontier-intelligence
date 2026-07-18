@@ -72,6 +72,22 @@ body {
   font-size: 0.8rem;
 }
 
+.tweet-generation-result {
+  border-top: 1px solid var(--border);
+  padding-top: 0.9rem;
+}
+
+.tweet-output {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: #eaf2ff;
+  line-height: 1.6;
+}
+
+.copy-tweet-btn {
+  min-width: 5rem;
+}
+
 .text-muted {
   color: var(--muted) !important;
 }

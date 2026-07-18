@@ -31,6 +31,7 @@ class FrontierRadarAppTests(unittest.TestCase):
         self.assertIn('最新ニュースの見出し', response.get_data(as_text=True))
         self.assertIn('液冷', response.get_data(as_text=True))
         self.assertIn('詳細を見る', response.get_data(as_text=True))
+        self.assertIn('Xポストを生成', response.get_data(as_text=True))
 
     def test_dashboard_data_includes_news_and_stock_summary(self):
         with patch('services.dashboard_service.SupabaseService') as mock_service:

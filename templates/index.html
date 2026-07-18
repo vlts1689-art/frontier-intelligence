@@ -67,7 +67,18 @@
           <div><strong>出典:</strong> {{ article.source or '不明' }}</div>
           <div><strong>掲載:</strong> {{ article.published_at }}</div>
         </div>
-        <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm">原文を開く</a>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm">原文を開く</a>
+          <button type="button" class="btn btn-outline-light btn-sm generate-tweet-btn"
+                  data-title="{{ article.title }}"
+                  data-summary="{{ article.summary_ja or article.description or '説明は登録されていません。' }}"
+                  data-topic="{{ article.topic or 'ニュース' }}"
+                  data-companies="{{ article.related_companies | join(', ') if article.related_companies else '' }}">Xポストを生成</button>
+        </div>
+        <div class="tweet-generation-result mt-3 d-none" aria-live="polite">
+          <div class="tweet-output p-3 rounded-3 small"></div>
+          <button type="button" class="btn btn-outline-light btn-sm mt-2 copy-tweet-btn">コピー</button>
+        </div>
       </div>
     </div>
     {% endfor %}
