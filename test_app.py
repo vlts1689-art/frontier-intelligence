@@ -73,6 +73,24 @@ class FrontierRadarAppTests(unittest.TestCase):
         self.assertEqual(payload['result']['fetched_count'], 4)
         self.assertEqual(payload['result']['completed_at'], '2026-07-18 12:34:56')
 
+    def test_dashboard_includes_theme_tabs_and_inferred_theme(self):
+        with patch('services.dashboard_service.SupabaseService') as mock_service:
+            mock_service.return_value.fetch_latest_news.return_value = [
+                {
+                    'title': 'SpaceXが新型ロケットを打ち上げる',
+                    'description': '宇宙開発の最新ニュース',
+                    'source': 'Reuters',
+                    'published_at': '2026-07-17T00:00:00Z',
+                    'topic': '',
+                    'url': 'https://example.com/news/3',
+                }
+            ]
+            dashboard = get_dashboard_data()
+
+        self.assertIn('theme_tabs', dashboard)
+        self.assertIn('宇宙', dashboard['theme_tabs'])
+        self.assertEqual(dashboard['latest_news'][0]['theme'], '宇宙')
+
     def test_home_route_uses_refresh_timestamp_query_param(self):
         with patch('app.get_dashboard_data', return_value={'overview': {'updated_at': 'old-time'}, 'cards': [], 'latest_news': [], 'latest_news_message': ''}):
             response = self.client.get('/?updated_at=2026-07-18%2012%3A34%3A56')

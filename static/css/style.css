@@ -72,6 +72,21 @@ body {
   font-size: 0.8rem;
 }
 
+.theme-tabs {
+  scrollbar-width: thin;
+}
+
+.theme-tab {
+  white-space: nowrap;
+  border-radius: 999px;
+}
+
+.theme-tab.active {
+  background: rgba(101, 183, 255, 0.16);
+  color: white;
+  border-color: var(--accent);
+}
+
 .refresh-news-btn {
   min-width: 10rem;
   border-radius: 999px;

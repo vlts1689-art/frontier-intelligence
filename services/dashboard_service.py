@@ -5,6 +5,19 @@ from services.news_analysis_service import NewsAnalysisService
 from services.news_service import NewsService
 from services.supabase_service import SupabaseService
 
+THEME_TABS = [
+    "all",
+    "AIデータセンター",
+    "半導体",
+    "宇宙",
+    "核融合",
+    "フィジカルAI",
+    "電力",
+    "バッテリー",
+    "量子",
+    "バイオ",
+]
+
 
 DEFAULT_CARDS = [
     {
@@ -75,6 +88,40 @@ def _format_published_at(value: Any) -> str:
         return str(value)
 
 
+def _infer_theme_for_article(article: Dict[str, Any]) -> str:
+    raw_topic = str(article.get("topic") or "").strip()
+    if raw_topic:
+        return raw_topic
+
+    text = " ".join(
+        [
+            str(article.get("title") or ""),
+            str(article.get("summary_ja") or article.get("description") or ""),
+            str(article.get("why_important") or ""),
+        ]
+    ).lower()
+
+    if any(token in text for token in ["data center", "ai", "gpu", "server", "cloud"]):
+        return "AIデータセンター"
+    if any(token in text for token in ["semiconductor", "chip", "nvidia", "wafer", "fab"]):
+        return "半導体"
+    if any(token in text for token in ["space", "satellite", "rocket", "宇宙"]):
+        return "宇宙"
+    if any(token in text for token in ["fusion", "核融合"]):
+        return "核融合"
+    if any(token in text for token in ["robot", "physical", "フィジカル"]):
+        return "フィジカルAI"
+    if any(token in text for token in ["power", "電力", "transformer", "grid"]):
+        return "電力"
+    if any(token in text for token in ["battery", "電池", "バッテリー"]):
+        return "バッテリー"
+    if any(token in text for token in ["quantum", "量子"]):
+        return "量子"
+    if any(token in text for token in ["bio", "biology", "バイオ"]):
+        return "バイオ"
+    return "その他"
+
+
 def get_dashboard_data():
     cards = DEFAULT_CARDS
     overview = {
@@ -118,6 +165,7 @@ def get_dashboard_data():
                 "related_companies": article.get("related_companies") or [],
                 "importance": article.get("importance"),
                 "why_important": article.get("why_important") or "",
+                "theme": _infer_theme_for_article(article),
             }
             for article in supabase_service.fetch_latest_news(limit=10)
         ]
@@ -142,4 +190,5 @@ def get_dashboard_data():
         "cards": cards,
         "latest_news": latest_news,
         "latest_news_message": latest_news_message,
+        "theme_tabs": THEME_TABS,
     }

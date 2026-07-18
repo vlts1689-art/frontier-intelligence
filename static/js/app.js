@@ -54,6 +54,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const themeTabs = document.querySelectorAll('.theme-tab');
+  const newsCards = Array.from(document.querySelectorAll('[data-news-card]'));
+  const newsCountPill = document.getElementById('news-count-pill');
+
+  themeTabs.forEach((button) => {
+    button.addEventListener('click', () => {
+      themeTabs.forEach((tab) => tab.classList.remove('active'));
+      button.classList.add('active');
+      const selectedTheme = button.dataset.theme || 'all';
+
+      let visibleCount = 0;
+      newsCards.forEach((card) => {
+        const matches = selectedTheme === 'all' || matchesTheme(card.dataset.theme, selectedTheme);
+        card.style.display = matches ? '' : 'none';
+        if (matches) {
+          visibleCount += 1;
+        }
+      });
+
+      if (newsCountPill) {
+        newsCountPill.textContent = `${visibleCount}件`;
+      }
+    });
+  });
+
   document.querySelectorAll('.generate-tweet-btn').forEach((button) => {
     button.addEventListener('click', () => {
       const result = button.parentElement?.nextElementSibling;
@@ -98,6 +123,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+function matchesTheme(themeValue, selectedTheme) {
+  if (!themeValue || selectedTheme === 'all') {
+    return selectedTheme === 'all';
+  }
+
+  const normalizedTheme = themeValue.toLowerCase();
+  const normalizedSelection = selectedTheme.toLowerCase();
+
+  if (normalizedSelection === '電力') {
+    return normalizedTheme.includes('電力') || normalizedTheme.includes('power') || normalizedTheme.includes('送配電');
+  }
+
+  if (normalizedSelection === 'バッテリー') {
+    return normalizedTheme.includes('battery') || normalizedTheme.includes('バッテリー');
+  }
+
+  if (normalizedSelection === '量子') {
+    return normalizedTheme.includes('quantum') || normalizedTheme.includes('量子');
+  }
+
+  if (normalizedSelection === 'バイオ') {
+    return normalizedTheme.includes('bio') || normalizedTheme.includes('バイオ');
+  }
+
+  if (normalizedSelection === 'フィジカルAI') {
+    return normalizedTheme.includes('physical') || normalizedTheme.includes('フィジカル') || normalizedTheme.includes('robot');
+  }
+
+  if (normalizedSelection === '宇宙') {
+    return normalizedTheme.includes('space') || normalizedTheme.includes('宇宙');
+  }
+
+  if (normalizedSelection === '核融合') {
+    return normalizedTheme.includes('fusion') || normalizedTheme.includes('核融合');
+  }
+
+  return normalizedTheme.includes(normalizedSelection);
+}
 
 function buildTweetText({ title, summary, topic, companies }) {
   const topicText = sanitizeText(topic) || 'ニュース';

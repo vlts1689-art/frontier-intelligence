@@ -50,13 +50,22 @@
       <p class="text-muted small mb-1">ニュース速報</p>
       <h2 class="h5 mb-0">最新ニュース</h2>
     </div>
-    <span class="pill">{{ dashboard.latest_news|length }}件</span>
+    <span class="pill" id="news-count-pill">{{ dashboard.latest_news|length }}件</span>
+  </div>
+
+  <div class="mb-3">
+    <div class="d-flex flex-nowrap overflow-auto pb-2 gap-2 theme-tabs" role="tablist" aria-label="テーマ別ニュース">
+      {% for theme in dashboard.theme_tabs %}
+      {% set tab_label = '全て' if theme == 'all' else theme %}
+      <button type="button" class="btn btn-sm btn-outline-light {% if loop.first %}active{% endif %} theme-tab" data-theme="{{ theme }}">{{ tab_label }}</button>
+      {% endfor %}
+    </div>
   </div>
 
   {% if dashboard.latest_news %}
-  <div class="row g-3">
+  <div class="row g-3" id="news-list-container">
     {% for article in dashboard.latest_news %}
-    <div class="col-12 col-xl-6">
+    <div class="col-12 col-xl-6" data-news-card data-theme="{{ article.theme or article.topic or 'その他' }}">
       <div class="border rounded-4 p-3 h-100">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
           <h3 class="h6 mb-0">{{ article.title }}</h3>
