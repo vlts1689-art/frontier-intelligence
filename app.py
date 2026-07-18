@@ -27,7 +27,7 @@ def refresh_news():
         result = refresh_news_data()
     except Exception as exc:
         logger.exception("News refresh failed")
-        return jsonify({"success": False, "error": str(exc)}), 500
+        return jsonify({"success": False, "error": str(exc), "type": type(exc).__name__}), 500
 
     return jsonify({"success": True, "result": result})
 
