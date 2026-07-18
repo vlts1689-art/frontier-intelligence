@@ -31,8 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error(payload.error || '更新に失敗しました。');
         }
 
-        refreshStatus.textContent = '更新しました';
-        window.location.reload();
+        const summary = `取得 ${payload.result.fetched_count || 0} 件 / 保存 ${payload.result.saved_count || 0} 件 / 重複 ${payload.result.duplicate_count || 0} 件`;
+        refreshStatus.textContent = `${summary} · 更新しました`;
+        const updatedAt = payload.result.completed_at || new Date().toISOString();
+        window.location.href = `/?updated_at=${encodeURIComponent(updatedAt)}`;
       } catch (error) {
         refreshStatus.textContent = error.message || '更新に失敗しました。';
         refreshButton.disabled = false;

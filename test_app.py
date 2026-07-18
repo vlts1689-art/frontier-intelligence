@@ -63,13 +63,22 @@ class FrontierRadarAppTests(unittest.TestCase):
         self.assertIn('最新ニュース', dashboard['latest_news_message'])
 
     def test_refresh_news_endpoint_returns_success(self):
-        with patch('app.refresh_news_data', return_value={'saved_count': 2, 'duplicate_count': 1, 'failed_count': 0, 'saved_urls': ['https://example.com/news/1']}):
+        with patch('app.refresh_news_data', return_value={'saved_count': 2, 'duplicate_count': 1, 'failed_count': 0, 'fetched_count': 4, 'completed_at': '2026-07-18 12:34:56', 'saved_urls': ['https://example.com/news/1']}):
             response = self.client.post('/refresh-news')
 
         self.assertEqual(response.status_code, 200)
         payload = response.get_json()
         self.assertTrue(payload['success'])
         self.assertEqual(payload['result']['saved_count'], 2)
+        self.assertEqual(payload['result']['fetched_count'], 4)
+        self.assertEqual(payload['result']['completed_at'], '2026-07-18 12:34:56')
+
+    def test_home_route_uses_refresh_timestamp_query_param(self):
+        with patch('app.get_dashboard_data', return_value={'overview': {'updated_at': 'old-time'}, 'cards': [], 'latest_news': [], 'latest_news_message': ''}):
+            response = self.client.get('/?updated_at=2026-07-18%2012%3A34%3A56')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('2026-07-18 12:34:56', response.get_data(as_text=True))
 
     def test_refresh_news_endpoint_returns_error(self):
         with patch('app.refresh_news_data', side_effect=RuntimeError('更新失敗')):
