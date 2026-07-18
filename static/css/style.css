@@ -72,6 +72,20 @@ body {
   font-size: 0.8rem;
 }
 
+.refresh-news-btn {
+  min-width: 10rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.refresh-news-btn:disabled {
+  opacity: 0.75;
+}
+
+#refresh-news-status {
+  min-height: 1.25rem;
+}
+
 .tweet-generation-result {
   border-top: 1px solid var(--border);
   padding-top: 0.9rem;

@@ -5,6 +5,43 @@ document.addEventListener('DOMContentLoaded', () => {
     card.classList.add('fade-in');
   });
 
+  const refreshButton = document.getElementById('refresh-news-btn');
+  const refreshStatus = document.getElementById('refresh-news-status');
+  let isRefreshing = false;
+
+  if (refreshButton && refreshStatus) {
+    refreshButton.addEventListener('click', async () => {
+      if (isRefreshing) {
+        return;
+      }
+
+      isRefreshing = true;
+      refreshButton.disabled = true;
+      refreshButton.innerHTML = '<span class="me-2">⏳</span>更新中…';
+      refreshStatus.textContent = '';
+
+      try {
+        const response = await fetch('/refresh-news', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const payload = await response.json();
+
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.error || '更新に失敗しました。');
+        }
+
+        refreshStatus.textContent = '更新しました';
+        window.location.reload();
+      } catch (error) {
+        refreshStatus.textContent = error.message || '更新に失敗しました。';
+        refreshButton.disabled = false;
+        refreshButton.innerHTML = '<span class="me-2">🔄</span>ニュースを更新';
+        isRefreshing = false;
+      }
+    });
+  }
+
   document.querySelectorAll('.generate-tweet-btn').forEach((button) => {
     button.addEventListener('click', () => {
       const result = button.parentElement?.nextElementSibling;

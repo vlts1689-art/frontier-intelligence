@@ -62,6 +62,24 @@ class FrontierRadarAppTests(unittest.TestCase):
         self.assertIn('latest_news_message', dashboard)
         self.assertIn('最新ニュース', dashboard['latest_news_message'])
 
+    def test_refresh_news_endpoint_returns_success(self):
+        with patch('app.refresh_news_data', return_value={'saved_count': 2, 'duplicate_count': 1, 'failed_count': 0, 'saved_urls': ['https://example.com/news/1']}):
+            response = self.client.post('/refresh-news')
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertTrue(payload['success'])
+        self.assertEqual(payload['result']['saved_count'], 2)
+
+    def test_refresh_news_endpoint_returns_error(self):
+        with patch('app.refresh_news_data', side_effect=RuntimeError('更新失敗')):
+            response = self.client.post('/refresh-news')
+
+        self.assertEqual(response.status_code, 500)
+        payload = response.get_json()
+        self.assertFalse(payload['success'])
+        self.assertIn('更新失敗', payload['error'])
+
 
 if __name__ == '__main__':
     unittest.main()
