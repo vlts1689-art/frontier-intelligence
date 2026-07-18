@@ -10,6 +10,10 @@ create table if not exists public.news (
   topic text,
   source text,
   published_at timestamptz,
+  summary_ja text,
+  related_companies jsonb,
+  importance integer,
+  why_important text,
   created_at timestamptz default now()
 );
 
@@ -32,6 +36,12 @@ create table if not exists public.watchlist (
   notes text,
   created_at timestamptz default now()
 );
+
+alter table public.news add column if not exists summary_ja text;
+alter table public.news add column if not exists topic text;
+alter table public.news add column if not exists related_companies jsonb;
+alter table public.news add column if not exists importance integer;
+alter table public.news add column if not exists why_important text;
 
 alter table public.news enable row level security;
 alter table public.signals enable row level security;

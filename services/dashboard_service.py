@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any, Dict, List
 
+from services.news_analysis_service import NewsAnalysisService
 from services.news_service import NewsService
 from services.supabase_service import SupabaseService
 
@@ -113,6 +114,10 @@ def get_dashboard_data():
             {
                 **article,
                 "published_at": _format_published_at(article.get("published_at")),
+                "summary_ja": article.get("summary_ja") or article.get("description") or "",
+                "related_companies": article.get("related_companies") or [],
+                "importance": article.get("importance"),
+                "why_important": article.get("why_important") or "",
             }
             for article in supabase_service.fetch_latest_news(limit=10)
         ]

@@ -58,8 +58,12 @@
           <span class="company-chip">{{ article.topic }}</span>
           {% endif %}
         </div>
-        <p class="text-muted small mb-2">{{ article.description or '説明は登録されていません。' }}</p>
+        <p class="text-muted small mb-2">{{ article.summary_ja or article.description or '説明は登録されていません。' }}</p>
         <div class="small text-muted mb-3">
+          <div><strong>トピック:</strong> {{ article.topic or 'その他' }}</div>
+          <div><strong>関連企業:</strong> {{ article.related_companies | join(', ') if article.related_companies else '未設定' }}</div>
+          <div><strong>重要度:</strong> {{ article.importance if article.importance is not none else '未設定' }}/100</div>
+          <div><strong>理由:</strong> {{ article.why_important or '未設定' }}</div>
           <div><strong>出典:</strong> {{ article.source or '不明' }}</div>
           <div><strong>掲載:</strong> {{ article.published_at }}</div>
         </div>
