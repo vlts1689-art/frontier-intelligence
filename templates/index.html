@@ -89,14 +89,20 @@
                   data-summary="{{ article.summary_ja or article.description or '説明は登録されていません。' }}"
                   data-topic="{{ article.topic or 'ニュース' }}"
                   data-companies="{{ article.related_companies | join(', ') if article.related_companies else '' }}">Xポストを生成</button>
-          <button type="button" class="btn btn-outline-primary btn-sm generate-ai-post-btn"
-                  data-title="{{ article.title }}"
-                  data-summary="{{ article.summary_ja or article.description or '説明は登録されていません。' }}"
-                  data-topic="{{ article.topic or 'ニュース' }}"
-                  data-companies="{{ article.related_companies | join(', ') if article.related_companies else '' }}"
-                  data-importance="{{ article.importance if article.importance is not none else '' }}"
-                  data-why-important="{{ article.why_important or '' }}"
-                  data-url="{{ article.url or '' }}">✨AI生成</button>
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm generate-ai-post-btn"
+                    data-title="{{ article.title }}"
+                    data-summary="{{ article.summary_ja or article.description or '説明は登録されていません。' }}"
+                    data-topic="{{ article.topic or 'ニュース' }}"
+                    data-companies="{{ article.related_companies | join(', ') if article.related_companies else '' }}"
+                    data-importance="{{ article.importance if article.importance is not none else '' }}"
+                    data-why-important="{{ article.why_important or '' }}"
+                    data-url="{{ article.url or '' }}"
+                    {% if not ai_generation_enabled %}disabled aria-disabled="true"{% endif %}>✨AI生成</button>
+            {% if not ai_generation_enabled %}
+            <span class="small text-muted">API設定後に利用できます</span>
+            {% endif %}
+          </div>
         </div>
         <div class="tweet-generation-result mt-3 d-none" aria-live="polite">
           <div class="tweet-output p-3 rounded-3 small"></div>

@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import datetime, timezone
 
 from flask import Flask, jsonify, render_template, request
@@ -19,7 +20,13 @@ def home():
     updated_at = request.args.get("updated_at")
     if updated_at:
         dashboard["overview"]["updated_at"] = updated_at
-    return render_template("index.html", dashboard=dashboard)
+
+    ai_generation_enabled = bool(os.getenv("OPENAI_API_KEY", "").strip())
+    return render_template(
+        "index.html",
+        dashboard=dashboard,
+        ai_generation_enabled=ai_generation_enabled,
+    )
 
 
 @app.route("/refresh-news", methods=["POST"])

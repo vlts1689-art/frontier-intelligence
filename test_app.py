@@ -1,3 +1,4 @@
+import os
 import unittest
 from unittest.mock import patch
 
@@ -97,6 +98,24 @@ class FrontierRadarAppTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('2026-07-18 12:34:56', response.get_data(as_text=True))
+
+    def test_home_page_disables_ai_button_without_api_key(self):
+        with patch.dict(os.environ, {}, clear=True):
+            response = self.client.get('/')
+
+        html = response.get_data(as_text=True)
+        self.assertIn('✨AI生成', html)
+        self.assertIn('API設定後に利用できます', html)
+        self.assertIn('disabled', html)
+
+    def test_home_page_enables_ai_button_when_api_key_present(self):
+        with patch.dict(os.environ, {'OPENAI_API_KEY': 'test-key'}, clear=True):
+            response = self.client.get('/')
+
+        html = response.get_data(as_text=True)
+        self.assertIn('✨AI生成', html)
+        self.assertNotIn('API設定後に利用できます', html)
+        self.assertNotIn('disabled', html)
 
     def test_refresh_news_endpoint_returns_error(self):
         with patch('app.refresh_news_data', side_effect=RuntimeError('更新失敗')):

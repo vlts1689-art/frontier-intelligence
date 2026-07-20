@@ -102,7 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.generate-ai-post-btn').forEach((button) => {
     button.addEventListener('click', async () => {
-      const result = button.parentElement?.nextElementSibling?.nextElementSibling;
+      if (button.disabled) {
+        return;
+      }
+
+      const result = button.parentElement?.parentElement?.nextElementSibling?.nextElementSibling;
       const output = result?.querySelector('.ai-post-output');
       if (!result || !output) {
         return;
