@@ -100,6 +100,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  document.querySelectorAll('.generate-ai-post-btn').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const result = button.parentElement?.nextElementSibling?.nextElementSibling;
+      const output = result?.querySelector('.ai-post-output');
+      if (!result || !output) {
+        return;
+      }
+
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = '生成中…';
+      result.classList.remove('d-none');
+      output.textContent = '生成中…';
+
+      try {
+        const response = await fetch('/generate-ai-post', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: button.dataset.title || '',
+            summary_ja: button.dataset.summary || '',
+            topic: button.dataset.topic || '',
+            importance: button.dataset.importance || '',
+            why_important: button.dataset.whyImportant || '',
+            related_companies: (button.dataset.companies || '').split(',').map((item) => item.trim()).filter(Boolean),
+            url: button.dataset.url || '',
+          }),
+        });
+        const payload = await response.json();
+
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.error || '生成に失敗しました。');
+        }
+
+        output.textContent = `${payload.post}\n\n文字数: ${payload.length || payload.post?.length || 0}`;
+        result.classList.remove('d-none');
+        button.textContent = '再生成';
+      } catch (error) {
+        output.textContent = error.message || '生成に失敗しました。';
+      } finally {
+        button.disabled = false;
+        if (button.textContent === '生成中…') {
+          button.textContent = originalText;
+        }
+      }
+    });
+  });
+
   document.querySelectorAll('.copy-tweet-btn').forEach((button) => {
     button.addEventListener('click', async () => {
       const output = button.previousElementSibling;
@@ -119,6 +167,39 @@ document.addEventListener('DOMContentLoaded', () => {
         window.setTimeout(() => {
           button.textContent = 'コピー';
         }, 1500);
+      }
+    });
+  });
+
+  document.querySelectorAll('.copy-ai-post-btn').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const output = button.parentElement?.previousElementSibling;
+      const text = output?.textContent?.split('\n\n文字数:')[0]?.trim();
+      if (!text) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = 'コピー済み';
+        window.setTimeout(() => {
+          button.textContent = 'コピー';
+        }, 1500);
+      } catch (error) {
+        button.textContent = 'コピー失敗';
+        window.setTimeout(() => {
+          button.textContent = 'コピー';
+        }, 1500);
+      }
+    });
+  });
+
+  document.querySelectorAll('.regenerate-ai-post-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      const card = button.closest('.border.rounded-4');
+      const aiButton = card?.querySelector('.generate-ai-post-btn');
+      if (aiButton) {
+        aiButton.click();
       }
     });
   });

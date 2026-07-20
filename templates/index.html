@@ -89,10 +89,25 @@
                   data-summary="{{ article.summary_ja or article.description or '説明は登録されていません。' }}"
                   data-topic="{{ article.topic or 'ニュース' }}"
                   data-companies="{{ article.related_companies | join(', ') if article.related_companies else '' }}">Xポストを生成</button>
+          <button type="button" class="btn btn-outline-primary btn-sm generate-ai-post-btn"
+                  data-title="{{ article.title }}"
+                  data-summary="{{ article.summary_ja or article.description or '説明は登録されていません。' }}"
+                  data-topic="{{ article.topic or 'ニュース' }}"
+                  data-companies="{{ article.related_companies | join(', ') if article.related_companies else '' }}"
+                  data-importance="{{ article.importance if article.importance is not none else '' }}"
+                  data-why-important="{{ article.why_important or '' }}"
+                  data-url="{{ article.url or '' }}">✨AI生成</button>
         </div>
         <div class="tweet-generation-result mt-3 d-none" aria-live="polite">
           <div class="tweet-output p-3 rounded-3 small"></div>
           <button type="button" class="btn btn-outline-light btn-sm mt-2 copy-tweet-btn">コピー</button>
+        </div>
+        <div class="ai-post-generation-result mt-3 d-none" aria-live="polite">
+          <div class="ai-post-output p-3 rounded-3 small"></div>
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <button type="button" class="btn btn-outline-light btn-sm copy-ai-post-btn">コピー</button>
+            <button type="button" class="btn btn-outline-primary btn-sm regenerate-ai-post-btn">再生成</button>
+          </div>
         </div>
       </div>
     </div>

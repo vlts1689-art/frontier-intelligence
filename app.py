@@ -5,6 +5,7 @@ from flask import Flask, jsonify, render_template, request
 
 from scripts.fetch_and_store_news import fetch_and_store_news as refresh_news_data
 from services.dashboard_service import get_dashboard_data
+from services.post_generation_service import generate_ai_post
 
 logging.basicConfig(level=logging.INFO)
 
@@ -30,6 +31,23 @@ def refresh_news():
         return jsonify({"success": False, "error": str(exc), "type": type(exc).__name__}), 500
 
     return jsonify({"success": True, "result": result})
+
+
+@app.route("/generate-ai-post", methods=["POST"])
+def generate_ai_post_route():
+    payload = request.get_json(silent=True) or {}
+    article = {
+        "title": payload.get("title", ""),
+        "summary_ja": payload.get("summary_ja", payload.get("summary", "")),
+        "description": payload.get("description", ""),
+        "topic": payload.get("topic", ""),
+        "importance": payload.get("importance"),
+        "why_important": payload.get("why_important", ""),
+        "related_companies": payload.get("related_companies") or [],
+        "url": payload.get("url", ""),
+    }
+    result = generate_ai_post(article)
+    return jsonify(result)
 
 
 if __name__ == "__main__":
